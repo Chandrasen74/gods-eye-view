@@ -1,0 +1,68 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'arena/**']
+    paths:
+      - 'scripts/gev-launcher.cjs'
+      - 'scripts/sea-config.json'
+      - 'scripts/build-win-exe.mjs'
+      - '.github/workflows/build-windows-exe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Windows x64 launcher
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+      GEV_REQUIRE_ALLOCATION_GATE: '0'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.0
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build the launcher exe
+        run: npm run build:exe
+
+      - name: Smoke-test the launcher
+        shell: pwsh
+        run: |
+          $env:GEV_NO_BROWSER = '1'
+          $exe = Join-Path (Get-Location) 'dist\GodsEyeView.exe'
+          $proc = Start-Process -FilePath $exe -PassThru
+          try {
+            $ok = $false
+            for ($i = 0; $i -lt 60; $i++) {
+              Start-Sleep -Seconds 1
+              try {
+                $resp = Invoke-WebRequest -Uri 'http://127.0.0.1:4173/' -UseBasicParsing -TimeoutSec 3
+                if ($resp.StatusCode -eq 200) { $ok = $true; break }
+              } catch { }
+            }
+            if (-not $ok) { throw 'The launcher did not serve the app within 60s' }
+            Write-Host 'Launcher smoke test passed (HTTP 200).'
+          } finally {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Upload the exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: GodsEyeView-windows-x64
+          path: dist/GodsEyeView.exe
+          if-no-files-found: error
