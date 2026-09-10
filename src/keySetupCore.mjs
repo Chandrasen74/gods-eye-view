@@ -46,6 +46,14 @@ export const KEY_SETUP_KEYS = Object.freeze([
     tier: 'metered',
   }),
   Object.freeze({
+    id: 'gemini',
+    title: 'GEMINI',
+    unlocks: 'Voice control via Gemini Live (free tier)',
+    getUrl: 'https://aistudio.google.com/apikey',
+    envVars: Object.freeze(['GEMINI_API_KEY']),
+    tier: 'free',
+  }),
+  Object.freeze({
     id: 'aisstream',
     title: 'AISSTREAM',
     unlocks: 'Live ships, worldwide',

@@ -18,7 +18,7 @@ import localDataLayers from './data/localLayers.js';
 import { LAYER_STATE_REGISTRY } from './data/layerState.js';
 import { registerDataCredits } from './data/dataCredits.js';
 import { SceneDirector } from './scenes/director.js';
-import { initGevVoiceCommands } from './voice/gevRealtime.js';
+import { initVoiceCommands } from './voice/geminiLive.js';
 import { MapStackController } from './mapStackController.js';
 import { initAnnotations } from './annotations/index.js';
 import { initLogoGaze } from './logoGaze.js';
@@ -326,7 +326,7 @@ async function init() {
       getRenderGovernorDiagnostics,
       requestRender: governorRequestRender,
     };
-    window.__godsEyeView.voiceCommands = initGevVoiceCommands({ viewer, styleManager, dataManager, sceneDirector, annotations });
+    window.__godsEyeView.voiceCommands = initVoiceCommands({ viewer, styleManager, dataManager, sceneDirector, annotations });
 
   } catch (error) {
     console.error("God's Eye View initialization failed:", error);
