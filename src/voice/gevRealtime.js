@@ -2539,7 +2539,7 @@ function resetVoiceVisualizerBars(bars) {
   }
 }
 
-function createVoiceControl({ reset = false } = {}) {
+export function createVoiceControl({ reset = false } = {}) {
   let root = document.getElementById('gev-voice-control');
   if (root && reset) {
     root.remove();
